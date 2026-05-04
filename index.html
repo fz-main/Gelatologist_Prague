@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gelatologist — Artigianale Gelato Praha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --warm: #F5E6D3;
+    --caramel: #C4822A;
+    --pistachio: #7A9B6E;
+    --berry: #9B4B6E;
+    --chocolate: #3D1F0D;
+    --gold: #D4A853;
+    --blush: #E8B4A0;
+    --mint: #A8D5C0;
+    --dark: #1A0F08;
+    --text: #2C1810;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--caramel);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.15s ease, background 0.3s ease;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--caramel);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.35s cubic-bezier(.17,.67,.35,.98), opacity 0.3s ease;
+    opacity: 0.6;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--chocolate);
+    z-index: 9990;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    animation: loaderOut 0.8s 2.8s cubic-bezier(.77,0,.18,1) forwards;
+  }
+  .loader-scoop {
+    width: 100px; height: 100px;
+    position: relative;
+    animation: scoopFloat 1.5s ease-in-out infinite;
+  }
+  .loader-scoop svg { width: 100%; height: 100%; }
+  .loader-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--cream);
+    margin-top: 24px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+  .loader-text span {
+    display: inline-block;
+    animation: letterIn 0.6s cubic-bezier(.215,.61,.355,1) both;
+  }
+  .loader-bar {
+    width: 200px; height: 2px;
+    background: rgba(255,255,255,0.15);
+    margin-top: 32px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .loader-bar::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--caramel), var(--gold), var(--blush));
+    animation: barFill 2.2s 0.3s cubic-bezier(.4,0,.2,1) forwards;
+    border-radius: 2px;
+  }
+  @keyframes loaderOut {
+    to { transform: translateY(-100%); }
+  }
+  @keyframes scoopFloat {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-12px) rotate(5deg); }
+  }
+  @keyframes letterIn {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes barFill {
+    to { width: 100%; }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.5s ease, padding 0.4s ease, box-shadow 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(255,248,240,0.92);
+    backdrop-filter: blur(16px);
+    padding: 14px 40px;
+    box-shadow: 0 2px 30px rgba(60,20,0,0.08);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cream);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.4s;
+  }
+  nav.scrolled .nav-logo { color: var(--chocolate); }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none; align-items: center;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,248,240,0.85);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  nav.scrolled .nav-links a { color: var(--text); }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--caramel);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* LANG SWITCHER */
+  .lang-switcher {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .lang-btn {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,248,240,0.6);
+    background: none; border: none; cursor: none;
+    padding: 2px 4px; transition: color 0.3s;
+  }
+  nav.scrolled .lang-btn { color: rgba(44,24,16,0.5); }
+  .lang-btn.active, .lang-btn:hover { color: var(--caramel); }
+  .lang-sep { color: rgba(255,248,240,0.3); font-size: 0.7rem; }
+  nav.scrolled .lang-sep { color: rgba(44,24,16,0.2); }
+
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    background: none; border: none; cursor: none; padding: 4px;
+  }
+  .hamburger span {
+    width: 24px; height: 2px;
+    background: var(--cream);
+    border-radius: 2px;
+    transition: background 0.4s, transform 0.4s;
+  }
+  nav.scrolled .hamburger span { background: var(--chocolate); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(156,75,110,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 50% at 80% 20%, rgba(122,155,110,0.3) 0%, transparent 55%),
+      radial-gradient(ellipse 90% 70% at 50% 50%, rgba(196,130,42,0.2) 0%, transparent 70%),
+      linear-gradient(160deg, #1A0F08 0%, #2C1810 40%, #3D1F0D 70%, #1A0F08 100%);
+  }
+  /* animated blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+    animation: blobFloat 12s ease-in-out infinite;
+  }
+  .blob-1 { width: 600px; height: 600px; background: radial-gradient(var(--caramel), transparent); top: -200px; right: -100px; animation-delay: 0s; }
+  .blob-2 { width: 400px; height: 400px; background: radial-gradient(var(--berry), transparent); bottom: -100px; left: -100px; animation-delay: -4s; }
+  .blob-3 { width: 300px; height: 300px; background: radial-gradient(var(--pistachio), transparent); top: 40%; left: 30%; animation-delay: -8s; }
+  @keyframes blobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+  }
+
+  /* particles */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleDrift linear infinite;
+    opacity: 0;
+  }
+  @keyframes particleDrift {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-20px) rotate(360deg); opacity: 0; }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+  }
+  .hero-pre {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 3s ease forwards;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+  }
+  .hero-pre::before, .hero-pre::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.9s 3.1s ease forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    display: block;
+  }
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-style: italic;
+    color: rgba(255,248,240,0.65);
+    margin-top: 24px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.9s 3.3s ease forwards;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.9s 3.5s ease forwards;
+  }
+  .btn-primary {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, var(--caramel), var(--gold));
+    color: var(--cream);
+    border: none;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 8px 32px rgba(196,130,42,0.4);
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--gold), var(--caramel));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(196,130,42,0.5); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary span { position: relative; z-index: 1; }
+  .btn-outline {
+    padding: 15px 40px;
+    background: transparent;
+    color: var(--cream);
+    border: 1.5px solid rgba(255,248,240,0.4);
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s 3.8s ease forwards;
+  }
+  .scroll-text {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,248,240,0.4);
+  }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, rgba(255,248,240,0.4), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(1); opacity: 0.4; }
+    50% { transform: scaleY(0.5); opacity: 0.8; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* floating gelato visual */
+  .hero-gelato {
+    position: absolute;
+    right: 5%; top: 50%;
+    transform: translateY(-50%);
+    width: clamp(200px, 30vw, 420px);
+    opacity: 0;
+    animation: fadeUp 1s 3.4s ease forwards;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .hero-gelato svg { width: 100%; height: auto; filter: drop-shadow(0 30px 60px rgba(196,130,42,0.3)); }
+
+  /* ── SECTION BASE ── */
+  section { padding: 100px 0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--caramel); font-weight: 500; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before { content: ''; width: 30px; height: 1px; background: var(--caramel); }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.15;
+    color: var(--chocolate);
+  }
+  .section-title em { font-style: italic; color: var(--caramel); }
+
+  /* reveal */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── ABOUT / INTRO STRIP ── */
+  #about {
+    background: var(--chocolate);
+    padding: 80px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  #about::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 80% at 80% 50%, rgba(196,130,42,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 50%, rgba(122,155,110,0.1) 0%, transparent 50%);
+  }
+  .about-inner {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .about-text .section-label { color: var(--gold); }
+  .about-text .section-label::before { background: var(--gold); }
+  .about-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 24px;
+  }
+  .about-title em { font-style: italic; color: var(--gold); }
+  .about-desc {
+    font-size: 1rem; line-height: 1.8;
+    color: rgba(255,248,240,0.7);
+    margin-bottom: 32px;
+  }
+  .stats-row {
+    display: flex; gap: 40px; flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; font-weight: 900;
+    color: var(--gold); line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,248,240,0.5); margin-top: 4px;
+  }
+  .about-visual {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .about-card {
+    background: rgba(255,248,240,0.05);
+    border: 1px solid rgba(255,248,240,0.08);
+    border-radius: 20px;
+    padding: 28px 24px;
+    backdrop-filter: blur(10px);
+    transition: background 0.4s, border-color 0.4s, transform 0.4s;
+    position: relative; overflow: hidden;
+  }
+  .about-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,248,240,0.04), transparent);
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .about-card:hover { background: rgba(255,248,240,0.08); border-color: rgba(212,168,83,0.3); transform: translateY(-4px); }
+  .about-card:hover::before { opacity: 1; }
+  .about-card:nth-child(2) { margin-top: 32px; }
+  .about-card:nth-child(4) { margin-top: -32px; }
+  .card-icon { font-size: 2rem; margin-bottom: 12px; }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .card-desc { font-size: 0.85rem; line-height: 1.6; color: rgba(255,248,240,0.55); }
+
+  /* ── ADVANTAGES ── */
+  #advantages {
+    background: var(--warm);
+    position: relative; overflow: hidden;
+  }
+  #advantages::before {
+    content: '';
+    position: absolute; top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(var(--blush), transparent 70%);
+    opacity: 0.3;
+  }
+  .adv-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    margin-top: 60px;
+  }
+  .adv-card {
+    background: var(--cream);
+    border-radius: 24px;
+    padding: 40px 32px;
+    position: relative; overflow: hidden;
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275), box-shadow 0.4s;
+    cursor: none;
+  }
+  .adv-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--caramel), var(--gold));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .adv-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(60,20,0,0.1); }
+  .adv-card:hover::after { transform: scaleX(1); }
+  .adv-icon {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+    position: relative; z-index: 1;
+  }
+  .adv-card:nth-child(1) .adv-icon { background: rgba(196,130,42,0.12); }
+  .adv-card:nth-child(2) .adv-icon { background: rgba(122,155,110,0.12); }
+  .adv-card:nth-child(3) .adv-icon { background: rgba(155,75,110,0.12); }
+  .adv-card:nth-child(4) .adv-icon { background: rgba(168,213,192,0.2); }
+  .adv-card:nth-child(5) .adv-icon { background: rgba(212,168,83,0.12); }
+  .adv-card:nth-child(6) .adv-icon { background: rgba(232,180,160,0.2); }
+  .adv-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; color: var(--chocolate);
+    margin-bottom: 12px;
+  }
+  .adv-text { font-size: 0.9rem; line-height: 1.7; color: rgba(44,24,16,0.65); }
+
+  /* ── SERVICES ── */
+  #services {
+    background: var(--cream);
+    position: relative;
+  }
+  .services-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-top: 60px;
+  }
+  .service-card {
+    border-radius: 24px; overflow: hidden;
+    position: relative; min-height: 340px;
+    cursor: none;
+    group: true;
+  }
+  .service-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.6s cubic-bezier(.25,.46,.45,.94);
+  }
+  .service-card:hover .service-bg { transform: scale(1.06); }
+  .service-card:nth-child(1) .service-bg {
+    background: linear-gradient(160deg, #3D1F0D 0%, #5C2E10 50%, #7A4020 100%);
+  }
+  .service-card:nth-child(2) .service-bg {
+    background: linear-gradient(160deg, #1F3828 0%, #2E5540 50%, #3D7255 100%);
+  }
+  .service-card:nth-child(3) .service-bg {
+    background: linear-gradient(160deg, #2A1A2E 0%, #4A2855 50%, #6B3870 100%);
+  }
+  .service-card:nth-child(4) .service-bg {
+    background: linear-gradient(160deg, #2A1810 0%, #8B5E3C 50%, #C4822A 100%);
+  }
+  .service-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+  }
+  .service-content {
+    position: relative; z-index: 2;
+    padding: 36px;
+    height: 100%; display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .service-emoji { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+  .service-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .service-desc { font-size: 0.88rem; line-height: 1.6; color: rgba(255,248,240,0.7); }
+  .service-tag {
+    display: inline-block; margin-top: 16px;
+    padding: 6px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); backdrop-filter: blur(8px);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .service-card:hover .service-tag { background: rgba(212,168,83,0.2); border-color: var(--gold); }
+
+  /* ── MENU / ASSORTIMENT ── */
+  #menu {
+    background: linear-gradient(180deg, var(--cream) 0%, var(--warm) 100%);
+    position: relative; overflow: hidden;
+  }
+  .menu-intro {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end;
+    margin-bottom: 60px;
+  }
+  .menu-desc { font-size: 1rem; line-height: 1.8; color: rgba(44,24,16,0.65); }
+  .menu-filter {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: flex-end;
+  }
+  .filter-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+    background: transparent; border: 1.5px solid rgba(44,24,16,0.2);
+    color: rgba(44,24,16,0.5); cursor: none;
+    transition: all 0.3s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--chocolate); border-color: var(--chocolate);
+    color: var(--cream);
+  }
+  .menu-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .menu-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275), box-shadow 0.4s;
+    position: relative;
+  }
+  .menu-card:hover { transform: translateY(-10px) rotate(-1deg); box-shadow: 0 20px 50px rgba(60,20,0,0.12); }
+  .menu-img {
+    height: 160px;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+  }
+  .menu-card:nth-child(1) .menu-img { background: linear-gradient(135deg, #7A4020, #C4822A); }
+  .menu-card:nth-child(2) .menu-img { background: linear-gradient(135deg, #3D6E4A, #7A9B6E); }
+  .menu-card:nth-child(3) .menu-img { background: linear-gradient(135deg, #6B2E4A, #9B4B6E); }
+  .menu-card:nth-child(4) .menu-img { background: linear-gradient(135deg, #2E2E4A, #5E5E8E); }
+  .menu-card:nth-child(5) .menu-img { background: linear-gradient(135deg, #4A3020, #8B6040); }
+  .menu-card:nth-child(6) .menu-img { background: linear-gradient(135deg, #1A3A2A, #4A8A6A); }
+  .menu-card:nth-child(7) .menu-img { background: linear-gradient(135deg, #3A1A2A, #8A4A6A); }
+  .menu-card:nth-child(8) .menu-img { background: linear-gradient(135deg, #2A2A1A, #6A6A3A); }
+  .menu-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(8px);
+    border-radius: 10px; padding: 4px 10px;
+    font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: white; border: 1px solid rgba(255,255,255,0.3);
+  }
+  .menu-body { padding: 20px; }
+  .menu-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; color: var(--chocolate); margin-bottom: 4px;
+  }
+  .menu-desc-sm { font-size: 0.8rem; color: rgba(44,24,16,0.5); line-height: 1.5; }
+  .menu-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px 16px;
+    border-top: 1px solid rgba(44,24,16,0.06);
+  }
+  .menu-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700; color: var(--caramel);
+  }
+  .menu-icons { display: flex; gap: 4px; }
+  .menu-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    background: rgba(44,24,16,0.04);
+    border: 1px solid rgba(44,24,16,0.08);
+    color: rgba(44,24,16,0.5);
+    font-style: normal;
+    title: attr(title);
+  }
+
+  /* ── CTA BANNER ── */
+  #cta-banner {
+    background: linear-gradient(135deg, var(--chocolate), #4A2810 50%, #1A0F08);
+    padding: 80px 0;
+    position: relative; overflow: hidden;
+  }
+  #cta-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 100% at 100% 50%, rgba(196,130,42,0.15), transparent),
+      radial-gradient(ellipse 40% 80% at 0% 50%, rgba(122,155,110,0.1), transparent);
+  }
+  .cta-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;
+  }
+  .cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    color: var(--cream); line-height: 1.2;
+  }
+  .cta-title em { font-style: italic; color: var(--gold); }
+  .cta-sub { font-size: 1rem; color: rgba(255,248,240,0.6); margin-top: 8px; }
+
+  /* ── MAP ── */
+  #location {
+    background: var(--cream);
+    padding: 100px 0 0;
+  }
+  .location-inner {
+    display: grid; grid-template-columns: 1fr 1.6fr; gap: 60px; align-items: start;
+  }
+  .location-info { padding-top: 20px; }
+  .info-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(44,24,16,0.08);
+  }
+  .info-item:last-child { border-bottom: none; }
+  .info-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    border-radius: 12px;
+    background: rgba(196,130,42,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .info-label {
+    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--caramel); font-weight: 500; margin-bottom: 4px;
+  }
+  .info-val {
+    font-size: 0.95rem; color: var(--text); line-height: 1.6;
+  }
+  .map-wrap {
+    border-radius: 24px; overflow: hidden;
+    box-shadow: 0 24px 80px rgba(60,20,0,0.12);
+    height: 480px;
+  }
+  .map-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--chocolate);
+    padding: 60px 0 40px;
+    position: relative;
+  }
+  footer::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.3;
+  }
+  .footer-inner {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 60px;
+    margin-bottom: 48px;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 900;
+    color: var(--cream); margin-bottom: 16px;
+  }
+  .footer-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1rem;
+    color: rgba(255,248,240,0.5);
+    line-height: 1.6;
+  }
+  .footer-col h4 {
+    font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 20px; font-weight: 500;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul li a {
+    font-size: 0.9rem; color: rgba(255,248,240,0.6);
+    text-decoration: none; transition: color 0.3s;
+  }
+  .footer-col ul li a:hover { color: var(--gold); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,248,240,0.08);
+    padding-top: 32px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-copy { font-size: 0.8rem; color: rgba(255,248,240,0.35); }
+  .footer-socials { display: flex; gap: 16px; }
+  .social-link {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,248,240,0.06);
+    border: 1px solid rgba(255,248,240,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,248,240,0.5); font-size: 1rem;
+    text-decoration: none; transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .social-link:hover { background: rgba(212,168,83,0.15); border-color: var(--gold); color: var(--gold); }
+
+  /* ── MOBILE NAV ── */
+  .mobile-menu {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--chocolate);
+    z-index: 99;
+    flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .mobile-menu.open { opacity: 1; pointer-events: all; }
+  .mobile-menu a {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700; color: var(--cream);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-close {
+    position: absolute; top: 24px; right: 40px;
+    font-size: 1.8rem; color: var(--cream); background: none;
+    border: none; cursor: none; line-height: 1;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .about-inner { grid-template-columns: 1fr; gap: 48px; }
+    .about-visual { display: none; }
+    .adv-grid { grid-template-columns: 1fr 1fr; }
+    .menu-grid { grid-template-columns: repeat(2, 1fr); }
+    .location-inner { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .hero-gelato { display: none; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    nav.scrolled { padding: 12px 24px; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .mobile-menu { display: flex; }
+    .container { padding: 0 24px; }
+    section { padding: 70px 0; }
+    .adv-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .menu-grid { grid-template-columns: 1fr 1fr; }
+    .menu-intro { grid-template-columns: 1fr; gap: 32px; }
+    .menu-filter { justify-content: flex-start; }
+    .cta-inner { flex-direction: column; }
+    .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .map-wrap { height: 320px; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+  @media (max-width: 480px) {
+    .menu-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 24px; }
+    .hero-ctas { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-scoop">
+    <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="45" rx="38" ry="38" fill="url(#g1)" opacity="0.95"/>
+      <ellipse cx="50" cy="46" rx="28" ry="26" fill="url(#g2)" opacity="0.4"/>
+      <path d="M35 80 L42 118 Q50 122 58 118 L65 80 Q50 88 35 80Z" fill="#C4822A"/>
+      <path d="M35 80 Q50 88 65 80" stroke="#A06820" stroke-width="1" fill="none"/>
+      <defs>
+        <radialGradient id="g1" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#F5D0A0"/>
+          <stop offset="100%" stop-color="#C4822A"/>
+        </radialGradient>
+        <radialGradient id="g2" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="white" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+    </svg>
+  </div>
+  <div class="loader-text" id="loaderText"></div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="closeMobile()">✕</button>
+  <a href="#about" onclick="closeMobile()" data-i18n="nav_about"></a>
+  <a href="#advantages" onclick="closeMobile()" data-i18n="nav_adv"></a>
+  <a href="#services" onclick="closeMobile()" data-i18n="nav_services"></a>
+  <a href="#menu" onclick="closeMobile()" data-i18n="nav_menu"></a>
+  <a href="#location" onclick="closeMobile()" data-i18n="nav_location"></a>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo">Gelatologist</a>
+  <ul class="nav-links">
+    <li><a href="#about" data-i18n="nav_about"></a></li>
+    <li><a href="#advantages" data-i18n="nav_adv"></a></li>
+    <li><a href="#services" data-i18n="nav_services"></a></li>
+    <li><a href="#menu" data-i18n="nav_menu"></a></li>
+    <li><a href="#location" data-i18n="nav_location"></a></li>
+  </ul>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('cs')">CS</button>
+    <span class="lang-sep">|</span>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <span class="lang-sep">|</span>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <span class="lang-sep">|</span>
+    <button class="lang-btn" onclick="setLang('ru')">RU</button>
+  </div>
+  <button class="hamburger" onclick="openMobile()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div id="particles"></div>
+
+  <div class="hero-content">
+    <p class="hero-pre" data-i18n="hero_pre"></p>
+    <h1 class="hero-title">
+      Gelato<br>
+      <em>Gelatologist</em>
+    </h1>
+    <p class="hero-sub" data-i18n="hero_sub"></p>
+    <div class="hero-ctas">
+      <a href="#menu" class="btn-primary"><span data-i18n="hero_cta1"></span></a>
+      <a href="#location" class="btn-outline" data-i18n="hero_cta2"></a>
+    </div>
+  </div>
+
+  <!-- Decorative gelato SVG -->
+  <div class="hero-gelato">
+    <svg viewBox="0 0 320 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- cone -->
+      <path d="M100 220 L160 400 L220 220Z" fill="url(#coneG)"/>
+      <path d="M105 225 L160 390 L215 225" stroke="rgba(255,255,255,0.08)" stroke-width="1" fill="none"/>
+      <!-- waffle pattern -->
+      <line x1="120" y1="240" x2="200" y2="240" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <line x1="115" y1="265" x2="205" y2="265" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <line x1="118" y1="290" x2="202" y2="290" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <line x1="122" y1="315" x2="198" y2="315" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <!-- scoop 1 (bottom) -->
+      <ellipse cx="160" cy="185" rx="62" ry="58" fill="url(#scoop1)"/>
+      <ellipse cx="148" cy="172" rx="35" ry="28" fill="rgba(255,255,255,0.08)"/>
+      <!-- scoop 2 (middle) -->
+      <ellipse cx="160" cy="118" rx="52" ry="48" fill="url(#scoop2)"/>
+      <ellipse cx="150" cy="108" rx="28" ry="22" fill="rgba(255,255,255,0.1)"/>
+      <!-- scoop 3 (top) -->
+      <ellipse cx="158" cy="60" rx="44" ry="42" fill="url(#scoop3)"/>
+      <ellipse cx="150" cy="52" rx="22" ry="18" fill="rgba(255,255,255,0.12)"/>
+      <!-- cherry -->
+      <circle cx="158" cy="22" r="10" fill="#C0392B"/>
+      <circle cx="154" cy="19" r="3" fill="rgba(255,255,255,0.3)"/>
+      <path d="M158 12 Q168 5 172 15" stroke="#5D4037" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- drips -->
+      <path d="M205 155 Q212 170 208 180 Q204 190 207 200" stroke="url(#drip1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M115 170 Q108 185 112 195" stroke="url(#drip2)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="coneG" x1="100" y1="220" x2="220" y2="400" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#C4822A"/>
+          <stop offset="100%" stop-color="#8B5E3C"/>
+        </linearGradient>
+        <radialGradient id="scoop1" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#F0C080"/>
+          <stop offset="60%" stop-color="#C4822A"/>
+          <stop offset="100%" stop-color="#8B5E3C"/>
+        </radialGradient>
+        <radialGradient id="scoop2" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#A8D5C0"/>
+          <stop offset="60%" stop-color="#7A9B6E"/>
+          <stop offset="100%" stop-color="#4A6B3E"/>
+        </radialGradient>
+        <radialGradient id="scoop3" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#F0A0C0"/>
+          <stop offset="60%" stop-color="#9B4B6E"/>
+          <stop offset="100%" stop-color="#6B2E4A"/>
+        </radialGradient>
+        <linearGradient id="drip1" x1="0" y1="0" x2="0" y2="1">
+          <stop stop-color="#F0C080" stop-opacity="0.8"/>
+          <stop offset="1" stop-color="#C4822A" stop-opacity="0.2"/>
+        </linearGradient>
+        <linearGradient id="drip2" x1="0" y1="0" x2="0" y2="1">
+          <stop stop-color="#A8D5C0" stop-opacity="0.8"/>
+          <stop offset="1" stop-color="#7A9B6E" stop-opacity="0.2"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="scroll-text" data-i18n="scroll"></span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-text reveal">
+        <div class="section-label" data-i18n="about_label"></div>
+        <h2 class="about-title" data-i18n="about_title"></h2>
+        <p class="about-desc" data-i18n="about_desc"></p>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-num">20+</span>
+            <span class="stat-label" data-i18n="stat1"></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-label" data-i18n="stat2"></span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">★4.8</span>
+            <span class="stat-label" data-i18n="stat3"></span>
+          </div>
+        </div>
+      </div>
+      <div class="about-visual reveal" style="transition-delay:0.2s">
+        <div class="about-card">
+          <div class="card-icon">🌿</div>
+          <div class="card-title" data-i18n="acard1_title"></div>
+          <div class="card-desc" data-i18n="acard1_desc"></div>
+        </div>
+        <div class="about-card">
+          <div class="card-icon">🇮🇹</div>
+          <div class="card-title" data-i18n="acard2_title"></div>
+          <div class="card-desc" data-i18n="acard2_desc"></div>
+        </div>
+        <div class="about-card">
+          <div class="card-icon">🧪</div>
+          <div class="card-title" data-i18n="acard3_title"></div>
+          <div class="card-desc" data-i18n="acard3_desc"></div>
+        </div>
+        <div class="about-card">
+          <div class="card-icon">❤️</div>
+          <div class="card-title" data-i18n="acard4_title"></div>
+          <div class="card-desc" data-i18n="acard4_desc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADVANTAGES -->
+<section id="advantages">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="adv_label"></div>
+      <h2 class="section-title" data-i18n="adv_title"></h2>
+    </div>
+    <div class="adv-grid">
+      <div class="adv-card reveal">
+        <div class="adv-icon">🌾</div>
+        <div class="adv-title" data-i18n="adv1_title"></div>
+        <div class="adv-text" data-i18n="adv1_text"></div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:0.1s">
+        <div class="adv-icon">🔬</div>
+        <div class="adv-title" data-i18n="adv2_title"></div>
+        <div class="adv-text" data-i18n="adv2_text"></div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:0.2s">
+        <div class="adv-icon">🌱</div>
+        <div class="adv-title" data-i18n="adv3_title"></div>
+        <div class="adv-text" data-i18n="adv3_text"></div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:0.1s">
+        <div class="adv-icon">⚡</div>
+        <div class="adv-title" data-i18n="adv4_title"></div>
+        <div class="adv-text" data-i18n="adv4_text"></div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:0.2s">
+        <div class="adv-icon">🏆</div>
+        <div class="adv-title" data-i18n="adv5_title"></div>
+        <div class="adv-text" data-i18n="adv5_text"></div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:0.3s">
+        <div class="adv-icon">🎨</div>
+        <div class="adv-title" data-i18n="adv6_title"></div>
+        <div class="adv-text" data-i18n="adv6_text"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="srv_label"></div>
+      <h2 class="section-title" data-i18n="srv_title"></h2>
+    </div>
+    <div class="services-grid" style="margin-top:60px">
+      <div class="service-card reveal">
+        <div class="service-bg"></div>
+        <div class="service-overlay"></div>
+        <div class="service-content">
+          <span class="service-emoji">🍦</span>
+          <h3 class="service-title" data-i18n="s1_title"></h3>
+          <p class="service-desc" data-i18n="s1_desc"></p>
+          <span class="service-tag" data-i18n="s1_tag"></span>
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.1s">
+        <div class="service-bg"></div>
+        <div class="service-overlay"></div>
+        <div class="service-content">
+          <span class="service-emoji">☕</span>
+          <h3 class="service-title" data-i18n="s2_title"></h3>
+          <p class="service-desc" data-i18n="s2_desc"></p>
+          <span class="service-tag" data-i18n="s2_tag"></span>
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.15s">
+        <div class="service-bg"></div>
+        <div class="service-overlay"></div>
+        <div class="service-content">
+          <span class="service-emoji">🎂</span>
+          <h3 class="service-title" data-i18n="s3_title"></h3>
+          <p class="service-desc" data-i18n="s3_desc"></p>
+          <span class="service-tag" data-i18n="s3_tag"></span>
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.2s">
+        <div class="service-bg"></div>
+        <div class="service-overlay"></div>
+        <div class="service-content">
+          <span class="service-emoji">🎁</span>
+          <h3 class="service-title" data-i18n="s4_title"></h3>
+          <p class="service-desc" data-i18n="s4_desc"></p>
+          <span class="service-tag" data-i18n="s4_tag"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="container">
+    <div class="menu-intro reveal">
+      <div>
+        <div class="section-label" data-i18n="menu_label"></div>
+        <h2 class="section-title" data-i18n="menu_title"></h2>
+      </div>
+      <div>
+        <p class="menu-desc" data-i18n="menu_desc"></p>
+        <div class="menu-filter" style="margin-top:24px">
+          <button class="filter-btn active" data-filter="all" data-i18n="filter_all"></button>
+          <button class="filter-btn" data-filter="classic" data-i18n="filter_classic"></button>
+          <button class="filter-btn" data-filter="seasonal" data-i18n="filter_season"></button>
+          <button class="filter-btn" data-filter="vegan" data-i18n="filter_vegan"></button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-grid" id="menuGrid">
+      <!-- Cards generated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section id="cta-banner">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <div>
+        <h2 class="cta-title" data-i18n="cta_title"></h2>
+        <p class="cta-sub" data-i18n="cta_sub"></p>
+      </div>
+      <a href="#location" class="btn-primary"><span data-i18n="cta_btn"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION + MAP -->
+<section id="location">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label" data-i18n="loc_label"></div>
+      <h2 class="section-title" data-i18n="loc_title"></h2>
+    </div>
+    <div class="location-inner" style="margin-top:60px">
+      <div class="location-info reveal">
+        <div class="info-item">
+          <div class="info-icon">📍</div>
+          <div>
+            <div class="info-label" data-i18n="loc_addr_label"></div>
+            <div class="info-val">Praha, Česká republika<br><small style="opacity:.6">50.0861396, 14.4180401</small></div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">🕐</div>
+          <div>
+            <div class="info-label" data-i18n="loc_hours_label"></div>
+            <div class="info-val" data-i18n="loc_hours_val"></div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">🌐</div>
+          <div>
+            <div class="info-label" data-i18n="loc_web_label"></div>
+            <div class="info-val">gelatologist.cz</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">🚇</div>
+          <div>
+            <div class="info-label" data-i18n="loc_transit_label"></div>
+            <div class="info-val" data-i18n="loc_transit_val"></div>
+          </div>
+        </div>
+      </div>
+      <div class="map-wrap reveal" style="transition-delay:0.2s">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2560.2!2d14.4180401!3d50.0861396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470b95bbe69c1b77%3A0x4f8d28a9b677b8f3!2sGelatologist!5e0!3m2!1scs!2scz!4v1"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Gelatologist Praha Map">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">Gelatologist</div>
+        <p class="footer-tagline" data-i18n="footer_tagline"></p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_nav_title"></h4>
+        <ul>
+          <li><a href="#about" data-i18n="nav_about"></a></li>
+          <li><a href="#advantages" data-i18n="nav_adv"></a></li>
+          <li><a href="#services" data-i18n="nav_services"></a></li>
+          <li><a href="#menu" data-i18n="nav_menu"></a></li>
+          <li><a href="#location" data-i18n="nav_location"></a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_info_title"></h4>
+        <ul>
+          <li><a href="#" data-i18n="footer_link1"></a></li>
+          <li><a href="#" data-i18n="footer_link2"></a></li>
+          <li><a href="#" data-i18n="footer_link3"></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy" data-i18n="footer_copy"></p>
+      <div class="footer-socials">
+        <a class="social-link" href="#" title="Instagram">𝕀</a>
+        <a class="social-link" href="#" title="Facebook">𝔽</a>
+        <a class="social-link" href="#" title="Google Maps">G</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── TRANSLATIONS ──
+const i18n = {
+  cs: {
+    nav_about: "O nás", nav_adv: "Výhody", nav_services: "Služby",
+    nav_menu: "Menu", nav_location: "Kontakt",
+    hero_pre: "Artisanální gelato · Praha",
+    hero_sub: "Každý kopeček je malé umělecké dílo — čerstvě připravené každý den.",
+    hero_cta1: "Prohlédnout menu", hero_cta2: "Jak nás najít",
+    scroll: "Scroll",
+    about_label: "Náš příběh",
+    about_title: "Gelato jako věda,<br><em>jako umění</em>",
+    about_desc: "Gelatologist je butikové gelato studio v srdci Prahy. Kombinujeme italskou tradici se současnou gastronomií — výsledkem jsou neuvěřitelné příchutě z těch nejkvalitnějších ingrediencí. Každý den připravujeme čerstvé gelato přímo na místě, bez umělých barviv a konzervantů.",
+    stat1: "příchutí denně", stat2: "přírodní složky", stat3: "hodnocení Google",
+    acard1_title: "Lokální ingredience", acard1_desc: "Spolupracujeme s českými farmáři a producenty.",
+    acard2_title: "Italská receptura", acard2_desc: "Tradice z Neapolského zálivu v každém kopečku.",
+    acard3_title: "Inovativní příchutě", acard3_desc: "Sezónní experimenty a neobvyklé kombinace.",
+    acard4_title: "S láskou a péčí", acard4_desc: "Každé gelato vyrobeno ručně s maximální péčí.",
+    adv_label: "Proč Gelatologist",
+    adv_title: "Šest dobrých důvodů<br><em>proč nás milovat</em>",
+    adv1_title: "Pouze přírodní ingredience", adv1_text: "Žádná umělá barviva, aromata ani konzervanty. Jen čerstvé ovoce, pravá čokoláda a poctivé mléko.",
+    adv2_title: "Denně čerstvé", adv2_text: "Gelato připravujeme každý den ráno v malých šaržích — vždy na vrcholu chuti a textury.",
+    adv3_title: "Veganské & bezlepkové", adv3_text: "Široký výběr veganských a bezlepkových variant pro každého.",
+    adv4_title: "Rychlá obsluha", adv4_text: "Váš kopeček je připraven za pár sekund. Bez čekání, s úsměvem.",
+    adv5_title: "Oceňovaná kvalita", adv5_text: "Hodnocení 4,8★ na Google. Stovky spokojených hostů z celého světa.",
+    adv6_title: "Kreativní prezentace", adv6_text: "Každý pohár je vizuální zážitek — fotografovatelný a neodolatelný.",
+    srv_label: "Co nabízíme",
+    srv_title: "Naše <em>služby</em>",
+    s1_title: "Artisanální Gelato", s1_desc: "20+ příchutí čerstvě vyrobených každý den z nejlepších ingrediencí. Klasické i netradiční kombinace.", s1_tag: "Stálá nabídka",
+    s2_title: "Specialty Káva", s2_desc: "Prémiová espresso a cold brew. Affogato — dokonalá kombinace gelata a espressa.", s2_tag: "Italský styl",
+    s3_title: "Narozeninové torty", s3_desc: "Gelato dorty a poháry pro vaše slavnostní příležitosti. Objednávky předem.", s3_tag: "Na objednávku",
+    s4_title: "Catering & Events", s4_desc: "Přivezeme gelato na vaši firemní akci, svatbu nebo oslavu. Mobilní gelateria.", s4_tag: "Praha & okolí",
+    menu_label: "Náš sortiment",
+    menu_title: "Výběr <em>příchutí</em>",
+    menu_desc: "Naše příchutě se mění se sezónou. Níže najdete výběr aktuálních stálých hitů — každý den přibývají nové speciály na tabuli.",
+    filter_all: "Vše", filter_classic: "Klasické", filter_season: "Sezónní", filter_vegan: "Vegan",
+    m1:"Pistácie", m1d:"Sicilské pistácie, jemně opražené",
+    m2:"Mango & Chilli", m2d:"Tropické mango s pikantním závěrem",
+    m3:"Slaný karamel", m3d:"Belgická karamela, Fleur de Sel",
+    m4:"Tmavá čokoláda", m4d:"72% kakao, hořká elegance",
+    m5:"Borůvka & Kefír", m5d:"Česká borůvka, jemný kefír",
+    m6:"Matcha", m6d:"Japonský zelený čaj, krémová textura",
+    m7:"Malinový sorbet", m7d:"100% lesní maliny, bez mléka",
+    m8:"Vanilka Madagaskar", m8d:"Bourbonská vanilka ze šlukového lusku",
+    badge_classic:"Classic", badge_seasonal:"Sezóna", badge_vegan:"Vegan", badge_new:"Novinka",
+    cta_title: "Navštivte nás dnes<br><em>a ochutnejte rozdíl</em>",
+    cta_sub: "Otevřeno každý den. Praha čeká na váš úsměv.",
+    cta_btn: "Zobrazit na mapě",
+    loc_label: "Kde nás najdete",
+    loc_title: "Navštivte <em>naši prodejnu</em>",
+    loc_addr_label: "Adresa",
+    loc_hours_label: "Otevírací doba",
+    loc_hours_val: "Po–Pá: 11:00–21:00\nSo–Ne: 10:00–22:00",
+    loc_web_label: "Web",
+    loc_transit_label: "Doprava",
+    loc_transit_val: "Metro A – Náměstí Míru\nTram 4, 10, 16 – zastávka Mánesova",
+    footer_tagline: "Artisanální gelato s italskou duší a pražským srdcem.",
+    footer_nav_title: "Navigace", footer_info_title: "Informace",
+    footer_link1: "Alergeny", footer_link2: "Catering", footer_link3: "Instagram",
+    footer_copy: "© 2024 Gelatologist Praha. Všechna práva vyhrazena.",
+  },
+  en: {
+    nav_about: "About", nav_adv: "Why Us", nav_services: "Services",
+    nav_menu: "Menu", nav_location: "Contact",
+    hero_pre: "Artisan Gelato · Prague",
+    hero_sub: "Every scoop is a small work of art — freshly crafted every day.",
+    hero_cta1: "View Menu", hero_cta2: "Find Us",
+    scroll: "Scroll",
+    about_label: "Our Story",
+    about_title: "Gelato as Science,<br><em>as Art</em>",
+    about_desc: "Gelatologist is a boutique gelato studio in the heart of Prague. We blend Italian tradition with contemporary gastronomy — creating extraordinary flavors from the finest ingredients. Every day we prepare fresh gelato on-site, with no artificial colors or preservatives.",
+    stat1: "flavors daily", stat2: "natural ingredients", stat3: "Google rating",
+    acard1_title: "Local Ingredients", acard1_desc: "We work with Czech farmers and local producers.",
+    acard2_title: "Italian Recipes", acard2_desc: "Tradition from the Bay of Naples in every scoop.",
+    acard3_title: "Innovative Flavors", acard3_desc: "Seasonal experiments and unusual combinations.",
+    acard4_title: "Made with Love", acard4_desc: "Every gelato handcrafted with maximum care.",
+    adv_label: "Why Gelatologist",
+    adv_title: "Six Good Reasons<br><em>to Fall in Love</em>",
+    adv1_title: "Only Natural Ingredients", adv1_text: "No artificial colors, aromas or preservatives. Just fresh fruit, real chocolate and honest milk.",
+    adv2_title: "Daily Fresh", adv2_text: "We make gelato every morning in small batches — always at peak flavor and texture.",
+    adv3_title: "Vegan & Gluten-Free", adv3_text: "Wide selection of vegan and gluten-free options for everyone.",
+    adv4_title: "Fast Service", adv4_text: "Your scoop is ready in seconds. No waiting, with a smile.",
+    adv5_title: "Award-Winning Quality", adv5_text: "4.8★ on Google. Hundreds of happy guests from around the world.",
+    adv6_title: "Creative Presentation", adv6_text: "Every cup is a visual experience — photogenic and irresistible.",
+    srv_label: "What We Offer",
+    srv_title: "Our <em>Services</em>",
+    s1_title: "Artisan Gelato", s1_desc: "20+ flavors freshly made every day from the best ingredients. Classic and unconventional combinations.", s1_tag: "Permanent Menu",
+    s2_title: "Specialty Coffee", s2_desc: "Premium espresso and cold brew. Affogato — the perfect blend of gelato and espresso.", s2_tag: "Italian Style",
+    s3_title: "Birthday Cakes", s3_desc: "Gelato cakes and cups for your special occasions. Pre-orders available.", s3_tag: "To Order",
+    s4_title: "Catering & Events", s4_desc: "We bring gelato to your corporate event, wedding or party. Mobile gelateria.", s4_tag: "Prague & Area",
+    menu_label: "Our Assortment",
+    menu_title: "Our <em>Flavors</em>",
+    menu_desc: "Our flavors change with the seasons. Below you'll find our current staple hits — new daily specials are always on the board.",
+    filter_all: "All", filter_classic: "Classic", filter_season: "Seasonal", filter_vegan: "Vegan",
+    m1:"Pistachio", m1d:"Sicilian pistachios, lightly roasted",
+    m2:"Mango & Chilli", m2d:"Tropical mango with a spicy finish",
+    m3:"Salted Caramel", m3d:"Belgian caramel, Fleur de Sel",
+    m4:"Dark Chocolate", m4d:"72% cocoa, bitter elegance",
+    m5:"Blueberry & Kefir", m5d:"Czech blueberry, gentle kefir",
+    m6:"Matcha", m6d:"Japanese green tea, creamy texture",
+    m7:"Raspberry Sorbet", m7d:"100% wild raspberries, dairy-free",
+    m8:"Madagascar Vanilla", m8d:"Bourbon vanilla from a real pod",
+    badge_classic:"Classic", badge_seasonal:"Seasonal", badge_vegan:"Vegan", badge_new:"New",
+    cta_title: "Visit Us Today<br><em>and Taste the Difference</em>",
+    cta_sub: "Open every day. Prague awaits your smile.",
+    cta_btn: "Show on Map",
+    loc_label: "Where to Find Us",
+    loc_title: "Visit <em>Our Shop</em>",
+    loc_addr_label: "Address",
+    loc_hours_label: "Opening Hours",
+    loc_hours_val: "Mon–Fri: 11:00–21:00\nSat–Sun: 10:00–22:00",
+    loc_web_label: "Website",
+    loc_transit_label: "Transport",
+    loc_transit_val: "Metro A – Náměstí Míru\nTram 4, 10, 16 – Mánesova stop",
+    footer_tagline: "Artisan gelato with an Italian soul and a Prague heart.",
+    footer_nav_title: "Navigation", footer_info_title: "Information",
+    footer_link1: "Allergens", footer_link2: "Catering", footer_link3: "Instagram",
+    footer_copy: "© 2024 Gelatologist Praha. All rights reserved.",
+  },
+  de: {
+    nav_about: "Über uns", nav_adv: "Vorteile", nav_services: "Leistungen",
+    nav_menu: "Speisekarte", nav_location: "Kontakt",
+    hero_pre: "Handgemachtes Gelato · Prag",
+    hero_sub: "Jede Kugel ist ein kleines Kunstwerk — täglich frisch zubereitet.",
+    hero_cta1: "Zur Speisekarte", hero_cta2: "So finden Sie uns",
+    scroll: "Scrollen",
+    about_label: "Unsere Geschichte",
+    about_title: "Gelato als Wissenschaft,<br><em>als Kunst</em>",
+    about_desc: "Gelatologist ist ein Boutique-Gelateria-Studio im Herzen von Prag. Wir verbinden italienische Tradition mit zeitgenössischer Gastronomie und kreieren außergewöhnliche Geschmacksrichtungen aus feinsten Zutaten. Täglich frisches Gelato – ohne Kunstfarben oder Konservierungsstoffe.",
+    stat1: "Sorten täglich", stat2: "Natürliche Zutaten", stat3: "Google-Bewertung",
+    acard1_title: "Lokale Zutaten", acard1_desc: "Wir arbeiten mit tschechischen Bauern zusammen.",
+    acard2_title: "Italienische Rezeptur", acard2_desc: "Tradition aus dem Golf von Neapel.",
+    acard3_title: "Innovative Sorten", acard3_desc: "Saisonale Experimente und ungewöhnliche Kombinationen.",
+    acard4_title: "Mit Liebe gemacht", acard4_desc: "Jedes Gelato handgefertigt mit größter Sorgfalt.",
+    adv_label: "Warum Gelatologist",
+    adv_title: "Sechs gute Gründe<br><em>uns zu lieben</em>",
+    adv1_title: "Nur natürliche Zutaten", adv1_text: "Keine Kunstfarben oder Konservierungsstoffe. Nur frisches Obst, echte Schokolade und ehrliche Milch.",
+    adv2_title: "Täglich frisch", adv2_text: "Wir stellen täglich morgens Gelato in kleinen Chargen her.",
+    adv3_title: "Vegan & Glutenfrei", adv3_text: "Große Auswahl an veganen und glutenfreien Optionen.",
+    adv4_title: "Schneller Service", adv4_text: "Ihre Kugel ist in Sekunden fertig. Ohne Warten, mit einem Lächeln.",
+    adv5_title: "Preisgekrönte Qualität", adv5_text: "4,8★ bei Google. Hunderte zufriedene Gäste aus aller Welt.",
+    adv6_title: "Kreative Präsentation", adv6_text: "Jeder Becher ist ein optisches Erlebnis — fotogen und unwiderstehlich.",
+    srv_label: "Was wir anbieten",
+    srv_title: "Unsere <em>Leistungen</em>",
+    s1_title: "Handgemachtes Gelato", s1_desc: "Täglich 20+ frische Sorten aus besten Zutaten. Klassisch und außergewöhnlich.", s1_tag: "Ständiges Angebot",
+    s2_title: "Specialty Kaffee", s2_desc: "Premium-Espresso und Cold Brew. Affogato – Gelato trifft Espresso.", s2_tag: "Italienischer Stil",
+    s3_title: "Geburtstagstorten", s3_desc: "Gelato-Torten für Ihre besonderen Anlässe. Vorbestellung möglich.", s3_tag: "Auf Bestellung",
+    s4_title: "Catering & Events", s4_desc: "Wir bringen Gelato zu Ihrer Firmenfeier, Hochzeit oder Party.", s4_tag: "Prag & Umgebung",
+    menu_label: "Unser Sortiment",
+    menu_title: "Unsere <em>Sorten</em>",
+    menu_desc: "Unsere Sorten wechseln mit den Jahreszeiten. Unten finden Sie unsere aktuellen Bestseller.",
+    filter_all: "Alle", filter_classic: "Klassisch", filter_season: "Saisonal", filter_vegan: "Vegan",
+    m1:"Pistazien", m1d:"Sizilianische Pistazien, leicht geröstet",
+    m2:"Mango & Chili", m2d:"Tropische Mango mit scharfem Abgang",
+    m3:"Gesalzenes Karamell", m3d:"Belgisches Karamell, Fleur de Sel",
+    m4:"Dunkle Schokolade", m4d:"72% Kakao, bittere Eleganz",
+    m5:"Heidelbeere & Kefir", m5d:"Tschechische Heidelbeere, sanfter Kefir",
+    m6:"Matcha", m6d:"Japanischer Grüntee, cremige Textur",
+    m7:"Himbeersorbet", m7d:"100% Waldfrüchte, milchfrei",
+    m8:"Madagaskar Vanille", m8d:"Bourbon-Vanille aus echter Schote",
+    badge_classic:"Klassisch", badge_seasonal:"Saisonal", badge_vegan:"Vegan", badge_new:"Neu",
+    cta_title: "Besuchen Sie uns heute<br><em>und schmecken Sie den Unterschied</em>",
+    cta_sub: "Täglich geöffnet. Prag wartet auf Ihr Lächeln.",
+    cta_btn: "Auf Karte anzeigen",
+    loc_label: "So finden Sie uns",
+    loc_title: "Besuchen Sie <em>unser Geschäft</em>",
+    loc_addr_label: "Adresse",
+    loc_hours_label: "Öffnungszeiten",
+    loc_hours_val: "Mo–Fr: 11:00–21:00\nSa–So: 10:00–22:00",
+    loc_web_label: "Website",
+    loc_transit_label: "Anfahrt",
+    loc_transit_val: "Metro A – Náměstí Míru\nTram 4, 10, 16 – Haltestelle Mánesova",
+    footer_tagline: "Handgemachtes Gelato mit italienischer Seele und Prager Herz.",
+    footer_nav_title: "Navigation", footer_info_title: "Informationen",
+    footer_link1: "Allergene", footer_link2: "Catering", footer_link3: "Instagram",
+    footer_copy: "© 2024 Gelatologist Praha. Alle Rechte vorbehalten.",
+  },
+  ru: {
+    nav_about: "О нас", nav_adv: "Преимущества", nav_services: "Услуги",
+    nav_menu: "Меню", nav_location: "Контакты",
+    hero_pre: "Артизанальное джелато · Прага",
+    hero_sub: "Каждый шарик — маленькое произведение искусства, свежесделанное каждый день.",
+    hero_cta1: "Посмотреть меню", hero_cta2: "Как нас найти",
+    scroll: "Прокрутить",
+    about_label: "Наша история",
+    about_title: "Джелато как наука,<br><em>как искусство</em>",
+    about_desc: "Gelatologist — бутиковая студия джелато в сердце Праги. Мы сочетаем итальянские традиции с современной гастрономией, создавая невероятные вкусы из лучших ингредиентов. Каждый день свежее джелато прямо на месте — без красителей и консервантов.",
+    stat1: "вкусов ежедневно", stat2: "натуральные ингредиенты", stat3: "рейтинг Google",
+    acard1_title: "Местные ингредиенты", acard1_desc: "Работаем с чешскими фермерами и производителями.",
+    acard2_title: "Итальянские рецепты", acard2_desc: "Традиции Неаполитанского залива в каждом шарике.",
+    acard3_title: "Инновационные вкусы", acard3_desc: "Сезонные эксперименты и необычные сочетания.",
+    acard4_title: "Сделано с любовью", acard4_desc: "Каждое джелато вручную с максимальной заботой.",
+    adv_label: "Почему Gelatologist",
+    adv_title: "Шесть причин<br><em>полюбить нас</em>",
+    adv1_title: "Только натуральные ингредиенты", adv1_text: "Никаких искусственных красителей, ароматизаторов или консервантов. Только свежие фрукты, настоящий шоколад и честное молоко.",
+    adv2_title: "Ежедневно свежее", adv2_text: "Джелато готовим каждое утро в малых партиях — всегда на пике вкуса и текстуры.",
+    adv3_title: "Веган & Без глютена", adv3_text: "Широкий выбор веганских и безглютеновых вариантов для каждого.",
+    adv4_title: "Быстрое обслуживание", adv4_text: "Ваш шарик готов за несколько секунд. Без ожидания, с улыбкой.",
+    adv5_title: "Отмеченное качество", adv5_text: "Оценка 4,8★ на Google. Сотни довольных гостей со всего мира.",
+    adv6_title: "Креативная подача", adv6_text: "Каждый бокал — визуальное удовольствие, идеально для фото.",
+    srv_label: "Что мы предлагаем",
+    srv_title: "Наши <em>услуги</em>",
+    s1_title: "Артизанальное джелато", s1_desc: "20+ вкусов, свежесделанных каждый день из лучших ингредиентов. Классика и оригинальные сочетания.", s1_tag: "Постоянное меню",
+    s2_title: "Specialty кофе", s2_desc: "Премиальный эспрессо и колд брю. Аффогато — идеальное сочетание джелато и кофе.", s2_tag: "Итальянский стиль",
+    s3_title: "Торты на заказ", s3_desc: "Торты и бокалы из джелато для ваших праздников. Заказы заранее.", s3_tag: "На заказ",
+    s4_title: "Кейтеринг & Мероприятия", s4_desc: "Привезём джелато на вашу корпоративную вечеринку, свадьбу или праздник.", s4_tag: "Прага и окрестности",
+    menu_label: "Наш ассортимент",
+    menu_title: "Выбор <em>вкусов</em>",
+    menu_desc: "Наши вкусы меняются по сезонам. Ниже — актуальные хиты. Ежедневные специалы на доске.",
+    filter_all: "Все", filter_classic: "Классика", filter_season: "Сезонные", filter_vegan: "Веган",
+    m1:"Фисташки", m1d:"Сицилийские фисташки, слегка обжаренные",
+    m2:"Манго & Чили", m2d:"Тропическое манго с пикантным послевкусием",
+    m3:"Солёная карамель", m3d:"Бельгийская карамель, Флёр де Сель",
+    m4:"Тёмный шоколад", m4d:"72% какао, горькая элегантность",
+    m5:"Черника & Кефир", m5d:"Чешская черника, нежный кефир",
+    m6:"Матча", m6d:"Японский зелёный чай, кремовая текстура",
+    m7:"Малиновый сорбет", m7d:"100% лесная малина, без молока",
+    m8:"Ваниль Мадагаскар", m8d:"Бурбонская ваниль из настоящего стручка",
+    badge_classic:"Классика", badge_seasonal:"Сезон", badge_vegan:"Веган", badge_new:"Новинка",
+    cta_title: "Посетите нас сегодня<br><em>и почувствуйте разницу</em>",
+    cta_sub: "Открыто каждый день. Прага ждёт вашей улыбки.",
+    cta_btn: "Показать на карте",
+    loc_label: "Где нас найти",
+    loc_title: "Посетите <em>нашу точку</em>",
+    loc_addr_label: "Адрес",
+    loc_hours_label: "Часы работы",
+    loc_hours_val: "Пн–Пт: 11:00–21:00\nСб–Вс: 10:00–22:00",
+    loc_web_label: "Сайт",
+    loc_transit_label: "Транспорт",
+    loc_transit_val: "Метро А – Náměstí Míru\nТрамвай 4, 10, 16 – ост. Mánesova",
+    footer_tagline: "Артизанальное джелато с итальянской душой и пражским сердцем.",
+    footer_nav_title: "Навигация", footer_info_title: "Информация",
+    footer_link1: "Аллергены", footer_link2: "Кейтеринг", footer_link3: "Instagram",
+    footer_copy: "© 2024 Gelatologist Praha. Все права защищены.",
+  }
+};
+
+let currentLang = 'cs';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    if (b.textContent.toLowerCase() === lang) b.classList.add('active');
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang] && i18n[lang][key] !== undefined) {
+      const val = i18n[lang][key];
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = val;
+      else el.innerHTML = val.replace(/\n/g, '<br>');
+    }
+  });
+  buildMenu();
+}
+
+// ── MENU DATA ──
+const menuData = [
+  { key: 1, category: 'classic', price: '75 Kč', badge: 'badge_classic', emoji: '🍵' },
+  { key: 2, category: 'seasonal', price: '75 Kč', badge: 'badge_seasonal', emoji: '🥭' },
+  { key: 3, category: 'classic', price: '75 Kč', badge: 'badge_classic', emoji: '🍯' },
+  { key: 4, category: 'classic', price: '75 Kč', badge: 'badge_classic', emoji: '🍫' },
+  { key: 5, category: 'seasonal', price: '75 Kč', badge: 'badge_new', emoji: '🫐' },
+  { key: 6, category: 'vegan', price: '75 Kč', badge: 'badge_vegan', emoji: '🍵' },
+  { key: 7, category: 'vegan', price: '70 Kč', badge: 'badge_vegan', emoji: '🍇' },
+  { key: 8, category: 'classic', price: '80 Kč', badge: 'badge_classic', emoji: '🍦' },
+];
+
+function buildMenu(filter = 'all') {
+  const t = i18n[currentLang];
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '';
+  menuData.forEach((item, idx) => {
+    if (filter !== 'all' && item.category !== filter) return;
+    const card = document.createElement('div');
+    card.className = 'menu-card reveal';
+    card.style.transitionDelay = (idx * 0.07) + 's';
+    card.innerHTML = `
+      <div class="menu-img">
+        <span style="font-size:3.5rem">${item.emoji}</span>
+        <span class="menu-badge">${t[item.badge] || ''}</span>
+      </div>
+      <div class="menu-body">
+        <div class="menu-name">${t['m'+item.key] || ''}</div>
+        <div class="menu-desc-sm">${t['m'+item.key+'d'] || ''}</div>
+      </div>
+      <div class="menu-footer">
+        <span class="menu-price">${item.price}</span>
+        <div class="menu-icons">
+          ${item.category === 'vegan' ? '<span class="menu-icon" title="Vegan">🌱</span>' : ''}
+          <span class="menu-icon" title="Gluten-free">GF</span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  // re-observe
+  observeReveal();
+}
+
+// ── FILTER ──
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    buildMenu(e.target.getAttribute('data-filter'));
+  }
+});
+
+// ── LOADER LETTERS ──
+function animateLoader() {
+  const text = 'GELATOLOGIST';
+  const el = document.getElementById('loaderText');
+  el.innerHTML = text.split('').map((c, i) =>
+    `<span style="animation-delay:${0.2 + i*0.06}s">${c}</span>`
+  ).join('');
+}
+
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+});
+function animRing() {
+  rx += (mx - rx) * 0.15;
+  ry += (my - ry) * 0.15;
+  ring.style.transform = `translate(${rx - 20}px, ${ry - 20}px)`;
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform += ' scale(2)'; ring.style.opacity = '0.2'; });
+  el.addEventListener('mouseleave', () => { ring.style.opacity = '0.6'; });
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── REVEAL ON SCROLL ──
+function observeReveal() {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+}
+
+// ── MOBILE MENU ──
+function openMobile() {
+  document.getElementById('mobileMenu').style.display = 'flex';
+  requestAnimationFrame(() => document.getElementById('mobileMenu').classList.add('open'));
+}
+function closeMobile() {
+  const m = document.getElementById('mobileMenu');
+  m.classList.remove('open');
+  setTimeout(() => { m.style.display = 'none'; }, 400);
+}
+
+// ── PARTICLES ──
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#C4822A', '#D4A853', '#9B4B6E', '#7A9B6E', '#E8B4A0', '#A8D5C0'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ── INIT ──
+animateLoader();
+createParticles();
+setLang('cs');
+observeReveal();
+setTimeout(observeReveal, 3200);
+</script>
+</body>
+</html>
